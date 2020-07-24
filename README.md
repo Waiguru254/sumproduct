@@ -1,42 +1,20 @@
-*** sumproduct
-***Sumproduct Function in Stata
-          /*
-          Created by: Waiguru Muriuki
-          Email: waigurusamuel@gmail.com
-          Date : 20/07/2020
-          */
-          cap program drop sumproduct
-          program define sumproduct, 
-          pause on
-          version 15.0
-          syntax   [,mi ///
-          missing gen(str) weight(string) vars(string asis) ]
-          ***************************************************************************************************************
-          local n_v: word count `vars'
-          local n_w: word count `weight'
-          if `n_v'!=`n_w' {
-                     di in red "The number of variables in not equal to the number of weights"
-                        exit 198
-                      }
+This is an introduction of SUMPRODUCT FUNCTION in MICROSOFT EXCEL in Stata 15. 
+Here are an abstract example: 
+clear
+input str20 metrics Kenya Uganda Tanzania
+"Emports (% of GDP)" 32 56 34
+"Exports (% of GDP)" 26 67 5
+"Deficit (% of GDP)" 34 61 .
+"Extras (% of GDP)" 39 58 7
+"Loss (% of GDP)" 29 58 78
+end
+***Weighting this by countires population in Stata?
+sumproduct, vars(Kenya Uganda Tanzania) weight(53771296 59734218 45741007) gen(EA_Overall)
 
-          *qui cap noi drop v?
-          qui isvar "`vars'"
-          local ll=""
-          local y=1
-  foreach var of varlist `r(varlist)' {
-                local po : list posof "`var'" in vars
-                local depvar : word `po' of `weight'
-                tempvar `var'
-                qui gen ``var''=`depvar'
-                qui replace ``var''=0 if mi(`var')
-                qui gen ov0`y' = ``var''*`var'
-                local ll "`ll' ``var''"  
-                local `++y'
-  }
-          tempvar foror
-          tempvar rowweyi
-          qui egen `foror'=rowtotal(`ll')
-          qui egen `rowweyi'=rowtotal(ov0?)
-          qui cap noi drop  ov0?
-          qui gen `gen'=`rowweyi'/`foror'
-  end
+
+    metrics         Kenya Uganda     Tanzani     EA_Overall
+Emports (% of GDP)	32	56	34	41.577
+Exports (% of GDP)	26	67	5	35.3474
+Deficit (% of GDP)	34	61		48.20921
+Extras (% of GDP)	39	58	7	36.93551
+Loss (% of GDP)	29	58	78	53.95251
