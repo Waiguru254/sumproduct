@@ -1,0 +1,41 @@
+          /*
+          Created by: Waiguru Muriuki
+          Email: waigurusamuel@gmail.com
+          Date : 20/07/2020
+          */
+          cap program drop sumproduct
+          program define sumproduct, 
+          pause on
+          version 15.0
+          syntax   [,mi ///
+          missing gen(str) weight(string) vars(string asis) ]
+          ***************************************************************************************************************
+          local n_v: word count `vars'
+          local n_w: word count `weight'
+          if `n_v'!=`n_w' {
+                     di in red "The number of variables in not equal to the number of weights"
+                        exit 198
+                      }
+
+          *qui cap noi drop v?
+          qui isvar "`vars'"
+          local ll=""
+          local y=1
+  foreach var of varlist `r(varlist)' {
+                local po : list posof "`var'" in vars
+                local depvar : word `po' of `weight'
+                tempvar `var'
+                qui gen ``var''=`depvar'
+                qui replace ``var''=0 if mi(`var')
+                qui gen ov0`y' = ``var''*`var'
+                local ll "`ll' ``var''"  
+                local `++y'
+  }
+          tempvar foror
+          tempvar rowweyi
+          qui egen `foror'=rowtotal(`ll')
+          qui egen `rowweyi'=rowtotal(ov0?)
+          qui cap noi drop  ov0?
+          qui gen `gen'=`rowweyi'/`foror'
+  end
+
